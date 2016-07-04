@@ -1,0 +1,15 @@
+# git repos
+-e git://github.com/xeroc/python-graphenelib@develop#egg=graphenelib
+
+# flask
+flask
+Flask-SQLAlchemy
+Flask-Session
+flask-cors
+
+# hosting
+gunicorn
+configparser
+
+# misc
+requests>=2.9.1

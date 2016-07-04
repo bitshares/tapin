@@ -1,0 +1,65 @@
+{
+  "name": "BitShares Tapin Faucet",
+  "description": "Let's you create new users for clients",
+  "repository": "https://github.com/xeroc/tapin",
+  "logo": "https://avatars0.githubusercontent.com/u/117800",
+  "keywords": ["bitshares", "faucet"],
+  "env": {
+    "secret_key": {
+      "description": "A secret key for the API - random string",
+      "value": "asfEGThe55eudhgdDAg$EZegaA§"
+    },
+    "witness_url": {
+      "description": "The public API node to connect to",
+      "value": "wss://bitshares.openledger.info/ws"
+    },
+    "mail_host": {
+      "description": "Mail host AND port",
+      "value": "host:port"
+    },
+    "mail_user": {
+      "description": "Mail user",
+      "value": ""
+    },
+    "mail_pass": {
+      "description": "Mail password",
+      "value": ""
+    },
+    "mail_from": {
+      "description": "Mail from field",
+      "value": "noreply@example.com"
+    },
+    "admins": {
+      "description": "Admin mail addresses",
+      "value": "['a@example.com', 'b@example.com']"
+    },
+    "minIPAge": {
+      "description": "Minimum duration (seconds) to wait until the same IP can register another account via the faucet",
+      "value": "300"
+    },
+    "registrar": {
+      "description": "Name of the registrar",
+      "value": ""
+    },
+    "wif": {
+      "description": "The active private key to the above registrar account",
+      "value": "5xxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "default_referrer": {
+      "description": "Referral to use of non present",
+      "value": "xeroc"
+    },
+    "referrer_percent": {
+      "description": "Percentage for the referral",
+      "value": "50"
+    },
+    "prefix": {
+      "description": "Network's prefix (BTS: BitShares)",
+      "value": "BTS"
+    },
+    "nobroadcast": {
+      "description": "Defines whether or not to actually perform anything on the blockchain",
+      "value": "True"
+    }
+  }
+}
