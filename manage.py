@@ -1,18 +1,22 @@
+#!/usr/bin/env python3
+
 import sys
 from flask import Flask
 from flask_script import Manager, Command
 from flask_migrate import Migrate, MigrateCommand
 from app import app, db
+from app.models import User, Invitation, Connection
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import config
+import threading
 
 manager = Manager(app)
 
-log_handler_mail = SMTPHandler(config.mail_host,
+log_handler_mail = SMTPHandler(config.mail_host.split(":"),
                                config.mail_from,
                                config.admins,
-                               '[Tap] Error',
+                               '[Faucet] Error',
                                (config.mail_user,
                                 config.mail_pass))
 log_handler_mail.setFormatter(logging.Formatter(
@@ -26,24 +30,27 @@ log_handler_mail.setFormatter(logging.Formatter(
     "\n" +
     "%(message)s\n"
 ))
-log_handler_stdout = logging.StreamHandler(sys.stdout)
-log_handler_rotate = RotatingFileHandler(
-    '%s.log' % __file__,
-    maxBytes=1024 * 1024 * 100,
-    backupCount=20
-)
-
-log = logging.getLogger(__name__)
 log_handler_mail.setLevel(logging.ERROR)
-log_handler_rotate.setLevel(logging.INFO)
-
-log.addHandler(log_handler_rotate)
-log.addHandler(log_handler_stdout)
-log.addHandler(log_handler_mail)
+log_handler_stdout = logging.StreamHandler(sys.stdout)
+# log_handler_stdout.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler_stdout.setFormatter(formatter)
+log_handler_rotate = RotatingFileHandler('faucet.log',
+                                         maxBytes=1024 * 1024 * 100,
+                                         backupCount=20)
+log_handler_rotate.setLevel(logging.CRITICAL)
 
 cors = logging.getLogger('flask_cors')
 cors.setLevel(logging.INFO)
 cors.addHandler(log_handler_stdout)
+
+for module in [__name__,
+               "app"
+               ]:
+    log = logging.getLogger(module)
+    log.addHandler(log_handler_mail)
+    log.addHandler(log_handler_rotate)
+    log.addHandler(log_handler_stdout)
 
 
 @manager.command
@@ -59,6 +66,16 @@ def run():
 @manager.command
 def start():
     app.run(debug=True)
+
+
+@manager.command
+def testmail():
+    from flask_mail import Message
+    from app import mail
+    msg = Message("Hello",
+                  sender="noreply@freedomledger.com",
+                  recipients=["mail@xeroc.org"])
+    mail.send(msg)
 
 
 migrate = Migrate(app, db)
