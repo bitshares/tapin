@@ -3,7 +3,6 @@
 import sys
 import os
 from flask import Flask, redirect, url_for, session, current_app
-from flask_assets import Environment
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_mail import Mail
