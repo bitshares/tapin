@@ -1,5 +1,7 @@
 # git repos
 -e git://github.com/xeroc/python-graphenelib@develop#egg=graphenelib
+autobahn
+pycrypto
 
 # flask
 flask

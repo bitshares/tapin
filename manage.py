@@ -4,7 +4,6 @@ import sys
 from flask import Flask
 from flask_script import Manager, Command
 from app import app, db
-from app.models import User, Invitation, Connection
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import config
