@@ -7,6 +7,7 @@ Flask-SQLAlchemy
 Flask-Session
 flask-cors
 flask-script
+flask-mail
 
 # hosting
 gunicorn
