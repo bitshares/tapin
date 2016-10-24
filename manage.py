@@ -71,8 +71,8 @@ def testmail():
     from flask_mail import Message
     from app import mail
     msg = Message("Hello",
-                  sender="noreply@freedomledger.com",
-                  recipients=["mail@xeroc.org"])
+                  sender=config.mail_from,
+                  recipients=config.admins)
     mail.send(msg)
 
 
