@@ -26,14 +26,23 @@ class MissingPublicKeys(Exception):
 
 class BitShares():
 
+    prefix = None
+
     def __init__(self, *args, **kwargs):
         self.nobroadcast = kwargs.pop("nobroadcast", False)
 
     def connect(self, *args, **kwargs):
         try:
             self.rpc = GrapheneClient(config.BitSharesConfig, **kwargs)
+            self.obtainPrefix()
         except:
-            raise APIUnavailable("BitShares API seems to be down!")
+            raise APIUnavailable("API node seems to be down!")
+
+    def obtainPrefix(self):
+        if hasattr(config, "chain"):
+            self.prefix = config.chain["prefix"]
+        else:
+            self.prefix = self.rpc.prefix
 
     def executeOp(self, op, wif):
         ops = [transactions.Operation(op)]
@@ -46,7 +55,10 @@ class BitShares():
             expiration=expiration,
             operations=ops
         )
-        tx = tx.sign([wif], self.rpc.prefix)
+        if hasattr(config, "chain"):
+            tx = tx.sign([wif], config.chain)
+        else:
+            tx = tx.sign([wif], self.rpc.prefix)
         tx = transactions.JsonObj(tx)
 
         self.connect()
@@ -137,7 +149,7 @@ class BitShares():
                          "extensions": []
                          },
              "extensions": {},
-             "prefix" : self.rpc.prefix
+             "prefix" : self.prefix
              }
         pprint(s)
         op = transactions.Account_create(**s)
