@@ -9,7 +9,7 @@ secret_key = "RANDOM-STRING"
 nobroadcast = True
 
 # Mailing
-mail_host = "SERVER:PORT"
+mail_host = "SERVER:589"
 mail_user = "user"
 mail_pass = "password"
 mail_from = "noreply@faucet.org"
@@ -27,7 +27,7 @@ class BitSharesConfig():
 
 
 # Faucet settings
-registrar        = "xeroc",
-default_referrer = "xeroc",
-referrer_percent = 50 * GRAPHENE_1_PERCENT,
-wif              = "<active-private-key-of-registrar>",
+registrar        = "xeroc"
+default_referrer = "xeroc"
+referrer_percent = 50 * GRAPHENE_1_PERCENT
+wif              = "<active-private-key-of-registrar>"

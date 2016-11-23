@@ -19,8 +19,9 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/v1/accounts', methods=['POST'])
-def tapbasic():
+@app.route('/api/v1/accounts', methods=['POST'], defaults={'referrer': None})
+@app.route('/<referrer>/api/v1/accounts', methods=['POST'])
+def tapbasic(referrer):
 
     if not request.json or 'account' not in request.json:
         abort(400)
@@ -41,12 +42,20 @@ def tapbasic():
     if bts.check_account_exists(account["name"]):
         return api_error("Account exists")
 
+    if referrer:
+        ref = referrer
+    else:
+        ref = account.get("referrer", None)
+
+    if ref and not bts.check_account_exists(ref):
+        return api_error("Referrer does not exist!")
+
     account = {
         "name": account["name"],
         "owner_key": account["owner_key"],
         "active_key": account["active_key"],
         "memo_key": account["memo_key"],
-        "referrer": account.get("referrer", None)
+        "referrer": ref
     }
 
     # Create new account

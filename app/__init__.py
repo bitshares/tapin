@@ -1,14 +1,12 @@
 #!/use/bin/env python3
 
 import sys
-import os
-from flask import Flask, redirect, url_for, session, current_app
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_mail import Mail
-from datetime import date
 import config
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 
