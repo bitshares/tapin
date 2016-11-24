@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = config.secret_key
 app.config['TAP'] = config
 sess = Session()
 
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r".*/api/v1/.*": {"origins": "*"}})
 
 app.config['MAIL_SERVER'] = config.mail_host.split(":")[0]
 app.config['MAIL_PORT'] = int(config.mail_host.split(":")[1])
