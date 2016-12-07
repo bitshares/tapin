@@ -1,0 +1,21 @@
+secret_key: "RANDOM-STRING"  # Random keys
+nobroadcast: True            # Safety mode
+
+mail_host: "SERVER:589"
+mail_user: "user"
+mail_pass: "password"
+mail_from: "noreply@faucet.org"
+
+admins:
+ - adminA@example.com
+ - adminB@example.com
+
+minIPAge: 300  # How long in secs does an IP need to wait to register a new account?
+witness_url: "wss://node.bitshares.eu"
+
+registrar: "xeroc"
+default_referrer: "xeroc"
+referrer_percent: 50  # in percent
+wif: "<wif-key>"
+
+balance_mailthreshold: 500  # if balances goes below this, you will be notified

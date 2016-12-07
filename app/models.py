@@ -4,7 +4,7 @@ from . import db
 import datetime
 import json
 import os
-import config
+from . import config
 
 
 class Accounts(db.Model):
@@ -31,3 +31,11 @@ class Accounts(db.Model):
             if allowedAge < i.created:
                 ips.append(i.ip)
         return ips
+
+    @staticmethod
+    def exists(address):
+        allowedAge = datetime.datetime.now() - datetime.timedelta(seconds=config.minIPAge)
+        return Accounts.query.filter(
+            (Accounts.ip == address),
+            (Accounts.created > allowedAge)
+        ).first()

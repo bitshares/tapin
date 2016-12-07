@@ -1,7 +1,9 @@
 from pprint import pprint
-from grapheneapi.grapheneclient import GrapheneClient
+from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 from graphenebase import transactions
-import config
+from . import config
+
+GRAPHENE_1_PERCENT = (10000 / 100)
 
 
 class APIUnavailable(Exception):
@@ -27,44 +29,36 @@ class MissingPublicKeys(Exception):
 class BitShares():
 
     prefix = None
+    rpc = None
 
     def __init__(self, *args, **kwargs):
         self.nobroadcast = kwargs.pop("nobroadcast", False)
-
-    def connect(self, *args, **kwargs):
         try:
-            self.rpc = GrapheneClient(config.BitSharesConfig, **kwargs)
-            self.obtainPrefix()
+            self.rpc = GrapheneWebsocketRPC(config.witness_url, **kwargs)
+            self.prefix = config.get("prefix", "BTS")
         except:
             raise APIUnavailable("API node seems to be down!")
 
-    def obtainPrefix(self):
-        if hasattr(config, "chain"):
-            self.prefix = config.chain["prefix"]
-        else:
-            self.prefix = self.rpc.prefix
-
     def executeOp(self, op, wif):
         ops = [transactions.Operation(op)]
-        ops = transactions.addRequiredFees(self.rpc.ws, ops, "1.3.0")
+        ops = transactions.addRequiredFees(self.rpc, ops, "1.3.0")
         expiration = transactions.formatTimeFromNow(30)
-        ref_block_num, ref_block_prefix = transactions.getBlockParams(self.rpc.ws)
+        ref_block_num, ref_block_prefix = transactions.getBlockParams(self.rpc)
         tx = transactions.Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
             operations=ops
         )
-        if hasattr(config, "chain"):
-            tx = tx.sign([wif], config.chain)
+        if "chain" in config:
+            tx = tx.sign([wif], config["chain"])
         else:
-            tx = tx.sign([wif], self.rpc.prefix)
+            tx = tx.sign([wif], self.prefix)
         tx = transactions.JsonObj(tx)
 
-        self.connect()
         if not self.nobroadcast:
             try:
-                self.rpc.ws.broadcast_transaction(tx, api="network_broadcast")
+                self.rpc.broadcast_transaction(tx, api="network_broadcast")
             except:
                 import traceback
                 print(traceback.format_exc())
@@ -77,16 +71,27 @@ class BitShares():
         return tx
 
     def check_account_exists(self, name):
-        self.connect()
         try:
-            account = self.rpc.ws.get_account(name, num_retries=0)
+            account = self.rpc.get_account(name, num_retries=0)
             if account:
                 return True
             else:
                 return False
         except:
-            account = self.rpc.ws.get_account(name, num_retries=0)
+            account = self.rpc.get_account(name, num_retries=0)
             return False
+
+    def get_balance(self):
+        asset = self.rpc.get_asset("1.3.0")
+        account = self.rpc.get_account(config.registrar)
+        for b in self.rpc.get_account_balances(
+            account["id"],
+            []
+        ):
+            if b["asset_id"] == "1.3.0":
+                return int(b["amount"]) / 10 ** asset["precision"]
+
+        return 0
 
     def create_account(self, data):
         name = data.get("name", None)
@@ -114,10 +119,9 @@ class BitShares():
         if not wif:
             raise MissingKeyError("We don't have a private key!")
 
-        # Try connect to witness node
-        self.connect()
-        registrar = self.rpc.ws.get_account(registrar)
-        referrer = self.rpc.ws.get_account(referrer)
+        # Account data
+        registrar = self.rpc.get_account(registrar)
+        referrer = self.rpc.get_account(referrer)
 
         if not referrer:
             raise Exception("Unknown referrer!")
@@ -129,7 +133,7 @@ class BitShares():
                      },
              "registrar": registrar["id"],
              "referrer": referrer["id"],
-             "referrer_percent": int(referrer_percent),
+             "referrer_percent": int(referrer_percent * GRAPHENE_1_PERCENT),
              "name": name,
              "owner": {"weight_threshold": 1,
                        "account_auths": [],
@@ -153,6 +157,4 @@ class BitShares():
              }
         pprint(s)
         op = transactions.Account_create(**s)
-
-        self.connect()
         self.executeOp(op, wif)
