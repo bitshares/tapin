@@ -2,7 +2,7 @@
 -e git://github.com/xeroc/python-graphenelib@develop#egg=graphenelib
 autobahn
 pycrypto
-yaml
+pyyaml
 
 # flask
 flask
