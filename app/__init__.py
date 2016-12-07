@@ -68,7 +68,7 @@ log_handler_mail.setFormatter(logging.Formatter(
     "\n" +
     "%(message)s\n"
 ))
-log_handler_mail.setLevel(logging.ERROR)
+log_handler_mail.setLevel(logging.WARN)
 log_handler_stdout = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log_handler_stdout.setFormatter(formatter)

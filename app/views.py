@@ -78,7 +78,7 @@ def tapbasic(referrer):
     models.Accounts(account["name"], request.remote_addr)
 
     if bts.get_balance() < config.balance_mailthreshold:
-        log.error(
+        log.warning(
             "The faucet's balances is below {}".format(
                 config.balance_mailthreshold
             ),
