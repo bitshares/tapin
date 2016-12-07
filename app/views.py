@@ -9,6 +9,7 @@ import traceback
 from . import config
 from . import bitshares
 from graphenebase.account import PasswordKey
+import threading
 log = app.logger
 
 
@@ -44,7 +45,6 @@ def tapbasic(referrer):
             re.search(r"[aeiouy]", account["name"])):
         return api_error("Only cheap names allowed!")
 
-
     # This is not really needed but added to keep API-compatibility with Rails Faucet
     account.update({"id": None})
 
@@ -69,8 +69,6 @@ def tapbasic(referrer):
         "referrer": ref
     }
 
-    pprint(account)
-
     # Create new account
     try:
         bts.create_account(account)
@@ -80,8 +78,9 @@ def tapbasic(referrer):
 
     models.Accounts(account["name"], request.remote_addr)
 
-    config.balance_mailthreshold = 5000000
     if bts.get_balance() < config.balance_mailthreshold:
-        log.error("The faucet's balances is below {}".format(config.balance_mailthreshold))
+        threading.Thread(target=log.error, args=(
+            "The faucet's balances is below {}".format(config.balance_mailthreshold),
+        )).start()
 
     return jsonify({"account": account})
