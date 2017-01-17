@@ -113,7 +113,6 @@ class BitShares():
             active_key[:len(self.prefix)] != self.prefix or
             memo_key[:len(self.prefix)] != self.prefix
         ):
-            log.error("Someone is trying to register with wrong network: %s" % owner_key)
             raise WrongNetworkError(
                 "This faucet is configured for prefix %s, but you are trying to register with key %s" % (self.prefix, owner_key)
             )
