@@ -1,7 +1,8 @@
 from pprint import pprint
 from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 from graphenebase import transactions
-from . import config
+from . import config, app
+log = app.logger
 
 GRAPHENE_1_PERCENT = (10000 / 100)
 
@@ -153,8 +154,15 @@ class BitShares():
                          "extensions": []
                          },
              "extensions": {},
-             "prefix" : self.prefix
+             "prefix": self.prefix
              }
         pprint(s)
-        op = transactions.Account_create(**s)
+        try:
+            op = transactions.Account_create(**s)
+        except Exception as e:
+            log.error(
+                "Error crearing account:\n\n%s\n\n%s" %
+                (str(e),str(s))
+            )
+            raise e
         self.executeOp(op, wif)
