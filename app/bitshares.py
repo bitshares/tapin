@@ -27,6 +27,10 @@ class MissingPublicKeys(Exception):
     pass
 
 
+class WrongNetworkError(Exception):
+    pass
+
+
 class BitShares():
 
     prefix = None
@@ -104,6 +108,16 @@ class BitShares():
         if not owner_key or not active_key or not memo_key:
             raise MissingPublicKeys("Not all required public keys have been provided")
 
+        if (
+            owner_key[:len(self.prefix)] != self.prefix or
+            active_key[:len(self.prefix)] != self.prefix or
+            memo_key[:len(self.prefix)] != self.prefix
+        ):
+            log.error("Someone is trying to register with wrong network: %s" % owner_key)
+            raise WrongNetworkError(
+                "This faucet is configured for prefix %s, but you are trying to register with key %s" % (self.prefix, owner_key)
+            )
+
         # Get registrar
         registrar = data.get("registrar", config.registrar)
 
@@ -162,7 +176,7 @@ class BitShares():
         except Exception as e:
             log.error(
                 "Error crearing account:\n\n%s\n\n%s" %
-                (str(e),str(s))
+                (str(e), str(s))
             )
             raise e
         self.executeOp(op, wif)
