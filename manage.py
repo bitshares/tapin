@@ -26,6 +26,12 @@ def start():
 
 
 @manager.command
+def donations(start=None, end=None):
+    import worker_donations
+    worker_donations.run(start, end)
+
+
+@manager.command
 def testmail():
     from flask_mail import Message
     from app import mail
