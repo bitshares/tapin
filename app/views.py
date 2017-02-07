@@ -59,16 +59,20 @@ def tapbasic(referrer):
         return api_error("Account exists")
     except:
         pass
+
+    # Registrar
+    registrar = account.get("registrar", config.registrar)
     try:
-        registrar = account.get("registrar", config.registrar)
         registrar = Account(registrar)
     except:
-        return api_error("Unknown registrar")
+        return api_error("Unknown registrar: %s" % registrar)
+
+    # Referrer
+    referrer = account.get("referrer", config.default_referrer)
     try:
-        referrer = account.get("referrer", config.default_referrer)
         referrer = Account(referrer)
     except:
-        return api_error("Unknown referrer")
+        return api_error("Unknown referrer: %s" % referrer)
     referrer_percent = account.get("referrer_percent", config.referrer_percent)
 
     # Create new account
