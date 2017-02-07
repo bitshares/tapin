@@ -1,3 +1,4 @@
+import yaml
 from pprint import pprint
 import sys
 import json
@@ -7,13 +8,11 @@ from bitshares.blockchain import Blockchain
 import logging
 log = logging.getLogger(__name__)
 
-from_account = "faucet"
-amount = 10000
-asset = "TEST"
+config = yaml.load(open("config.yml").read())
 
 bitshares = BitShares(
     "wss://node.testnet.bitshares.eu",
-    keys=[""],
+    keys=[config["wif"]],
     nobroadcast=False
 )
 
@@ -37,8 +36,8 @@ def run(begin=None, end=None):
         try:
             pprint(bitshares.transfer(
                 op["op"][1]["name"],
-                amount, asset,
-                account=from_account
+                config["donation_amount"], config["donation_asset"],
+                account=config["registrar"]
             ))
         except Exception as e:
             log.error(str(e))
