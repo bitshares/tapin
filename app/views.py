@@ -1,3 +1,5 @@
+from bitshares.account import Account
+from bitshares import BitShares
 import re
 from pprint import pprint
 import json
@@ -7,7 +9,6 @@ from . import app, models
 from datetime import datetime
 import traceback
 from . import config
-from . import bitshares
 from graphenebase.account import PasswordKey
 log = app.logger
 
@@ -36,7 +37,7 @@ def tapbasic(referrer):
         abort(400)
 
     # prevent massive account registration
-    if models.Accounts.exists(request.remote_addr):
+    if request.remote_addr != "127.0.0.1" and models.Accounts.exists(request.remote_addr):
         return api_error("Only one account per IP")
 
     # Check if account name is cheap name
@@ -47,41 +48,58 @@ def tapbasic(referrer):
     # This is not really needed but added to keep API-compatibility with Rails Faucet
     account.update({"id": None})
 
-    bts = bitshares.BitShares(nobroadcast=config.nobroadcast)
+    bitshares = BitShares(
+        config.witness_url,
+        nobroadcast=config.nobroadcast,
+        keys=[config.wif]
+    )
 
-    if bts.check_account_exists(account["name"]):
+    try:
+        Account(account["name"])
         return api_error("Account exists")
-
-    if referrer:
-        ref = referrer
-    else:
-        ref = account.get("referrer", None)
-
-    if ref and not bts.check_account_exists(ref):
-        return api_error("Referrer does not exist!")
-
-    account = {
-        "name": account["name"],
-        "owner_key": account["owner_key"],
-        "active_key": account["active_key"],
-        "memo_key": account["memo_key"],
-        "referrer": ref
-    }
+    except:
+        pass
+    try:
+        registrar = account.get("registrar", config.registrar)
+        registrar = Account(registrar)
+    except:
+        return api_error("Unknown registrar")
+    try:
+        referrer = account.get("referrer", config.default_referrer)
+        referrer = Account(referrer)
+    except:
+        return api_error("Unknown referrer")
+    referrer_percent = account.get("referrer_percent", config.referrer_percent)
 
     # Create new account
     try:
-        bts.create_account(account)
+        bitshares.create_account(
+            account["name"],
+            registrar=registrar["id"],
+            referrer=referrer["id"],
+            referrer_percent=referrer_percent,
+            owner_key=account["owner_key"],
+            active_key=account["active_key"],
+            memo_key=account["memo_key"],
+            storekeys=False,
+        )
     except Exception as e:
         log.error(traceback.format_exc())
         return api_error(str(e))
 
     models.Accounts(account["name"], request.remote_addr)
 
-    if bts.get_balance() < config.balance_mailthreshold:
-        log.warning(
+    if registrar.balance(config.core_asset).amount < config.balance_mailthreshold:
+        log.critical(
             "The faucet's balances is below {}".format(
                 config.balance_mailthreshold
             ),
         )
 
-    return jsonify({"account": account})
+    return jsonify({"account": {
+        "name": account["name"],
+        "owner_key": account["owner_key"],
+        "active_key": account["active_key"],
+        "memo_key": account["memo_key"],
+        "referrer": referrer["name"]
+    }})

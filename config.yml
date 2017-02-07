@@ -11,14 +11,15 @@ admins:
  - adminB@example.com
 
 minIPAge: 300  # How long in secs does an IP need to wait to register a new account?
-witness_url: "wss://node.bitshares.eu"
+witness_url: "wss://node.testnet.bitshares.eu"
 
-registrar: "xeroc"
+registrar: "faucet"
 default_referrer: "xeroc"
 referrer_percent: 50  # in percent
-wif: "<wif-key>"
+wif: ""
 
 balance_mailthreshold: 500  # if balances goes below this, you will be notified
 
+core_asset: "TEST"
 donation_amount: 10000
 donation_asset: TEST
