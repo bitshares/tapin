@@ -1,5 +1,6 @@
 # git repos
--e git://github.com/xeroc/python-graphenelib@develop#egg=graphenelib
+-e git://github.com/xeroc/python-graphenelib@minimal#egg=graphenelib
+-e git://github.com/xeroc/python-bitshares@develop#egg=bitshares
 autobahn
 pycrypto
 pyyaml
