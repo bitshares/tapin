@@ -61,14 +61,14 @@ def tapbasic(referrer):
         pass
 
     # Registrar
-    registrar = account.get("registrar", config.registrar)
+    registrar = account.get("registrar", config.registrar) or config.registrar
     try:
         registrar = Account(registrar)
     except:
         return api_error("Unknown registrar: %s" % registrar)
 
     # Referrer
-    referrer = account.get("referrer", config.default_referrer)
+    referrer = account.get("referrer", config.default_referrer) or config.default_referrer
     try:
         referrer = Account(referrer)
     except:
