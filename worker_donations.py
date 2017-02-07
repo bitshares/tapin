@@ -25,7 +25,7 @@ def run(begin=None, end=None):
     )
 
     for op in blockchain.stream(
-        start=6110829
+        opNames=["account_create"]
     ):
         blockid = op.get("block_num")
         timestamp = op.get("timestamp")
