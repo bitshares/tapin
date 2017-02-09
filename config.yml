@@ -16,7 +16,7 @@ witness_url: "wss://node.testnet.bitshares.eu"
 registrar: "faucet"
 default_referrer: "xeroc"
 referrer_percent: 50  # in percent
-wif: ""
+wif: "5KAniAqT1y4orQQ7KopKJ85QQXbVU92jbpV6KGGy5b396LpLYLM"
 
 balance_mailthreshold: 500  # if balances goes below this, you will be notified
 

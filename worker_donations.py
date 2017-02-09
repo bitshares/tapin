@@ -63,7 +63,7 @@ def run(begin=None, end=None):
 
         try:
             pprint(bitshares.transfer(
-                op["op"][1]["name"],
+                op["name"],
                 config["donation_amount"], config["donation_asset"],
                 account=config["registrar"]
             ))
