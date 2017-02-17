@@ -12,10 +12,8 @@ class Config(dict):
     """ Configuration class loads settings from YAML file
     """
     def __init__(self, *args, **kwargs):
-        super(Config, self).__init__(*args, **kwargs)
         config = yaml.load(open("config.yml").read())
-        for key, value in config.items():
-            self[key] = value
+        super(Config, self).__init__(config)
 
     __getattr__ = dict.__getitem__
     __setattr__ = dict.__setitem__
