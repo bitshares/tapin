@@ -85,7 +85,7 @@ def tapbasic(referrer):
             owner_key=account["owner_key"],
             active_key=account["active_key"],
             memo_key=account["memo_key"],
-            proxy=config.get("proxy", None),
+            proxy_account=config.get("proxy", None),
             storekeys=False,
         )
     except Exception as e:
