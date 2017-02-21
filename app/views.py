@@ -86,7 +86,10 @@ def tapbasic(referrer):
             active_key=account["active_key"],
             memo_key=account["memo_key"],
             proxy_account=config.get("proxy", None),
-            storekeys=False,
+            additional_owner_accounts=config.get("additional_owner_accounts", []),
+            additional_active_accounts=config.get("additional_active_accounts", []),
+            additional_owner_keys=config.get("additional_owner_keys", []),
+            additional_active_keys=config.get("additional_active_keys", []),
         )
     except Exception as e:
         log.error(traceback.format_exc())
