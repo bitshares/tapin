@@ -97,7 +97,8 @@ def tapbasic(referrer):
 
     models.Accounts(account["name"], request.remote_addr)
 
-    if registrar.balance(config.core_asset).amount < config.balance_mailthreshold:
+    balance = registrar.balance(config.core_asset)
+    if balance and balance.amount < config.balance_mailthreshold:
         log.critical(
             "The faucet's balances is below {}".format(
                 config.balance_mailthreshold
