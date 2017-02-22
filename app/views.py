@@ -55,7 +55,7 @@ def tapbasic(referrer):
     )
 
     try:
-        Account(account["name"])
+        Account(account["name"], bitshares_instance=bitshares)
         return api_error("Account exists")
     except:
         pass
@@ -63,14 +63,14 @@ def tapbasic(referrer):
     # Registrar
     registrar = account.get("registrar", config.registrar) or config.registrar
     try:
-        registrar = Account(registrar)
+        registrar = Account(registrar, bitshares_instance=bitshares)
     except:
         return api_error("Unknown registrar: %s" % registrar)
 
     # Referrer
     referrer = account.get("referrer", config.default_referrer) or config.default_referrer
     try:
-        referrer = Account(referrer)
+        referrer = Account(referrer, bitshares_instance=bitshares)
     except:
         return api_error("Unknown referrer: %s" % referrer)
     referrer_percent = account.get("referrer_percent", config.referrer_percent)
