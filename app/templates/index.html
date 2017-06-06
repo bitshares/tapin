@@ -1,1 +1,44 @@
-This is a faucet. It is not meant to be accessed directly.
+<html>
+ <head>
+  <title>Faucet API documentation</title>
+ </head>
+ <body>
+  <p>The purpose of this page is to document the use of PeerPlays's faucet <strong>API to register new accounts on PeerPlays</strong>.</p>
+  <h2 id="basic-endpoint">Basic Endpoint</h2>
+  <p>The general endpoint for referral API is available at the currently open address.</p>
+  <h2 id="path">Path</h2>
+  <p>Both endpoints expect the following path in order to reach the actual faucet:</p>
+  <pre><code>
+      /api/v1/accounts
+  </code></pre>
+  <h1 id="rate-limitations">Rate Limitations</h1>
+  <p>A single IP may only request a new account once per hour.</p>
+  <h1 id="referral-call">Referral Call</h1>
+  <p>In order to create a new account through this faucet, you need a <code>POST</code> request with a JSON formated body.</p>
+  <h2 id="basic-json-format">Basic JSON format</h2>
+  <pre><code>
+     {
+         "account":{
+             "name":"account-name",
+             "owner_key":"PPY5WaszCsqVN9hDkXZPMyiUib3dyrEA4yd5kSMgu28Wz47B3wUqa",
+             "active_key":"PPY5TPTziKkLexhVKsQKtSpo4bAv5RnB8oXcG4sMHEwCcTf3r7dqE",
+             "memo_key":"PPY5TPTziKkLexhVKsQKtSpo4bAv5RnB8oXcG4sMHEwCcTf3r7dqE",
+         }
+     }
+  </code></pre>
+  <p>The <code>*_key</code> keys have to be valid public keys for the PeerPlays network!</p>
+  <h1 id="reply">Reply</h1>
+  <p>The request's reply will have the following form:</p>
+  <pre><code>
+     {
+         "account":{
+             "name":"account-name",
+             "owner_key":"PPY5WaszCsqVN9hDkXZPMyiUib3dyrEA4yd5kSMgu28Wz47B3wUqa",
+             "active_key":"PPY5TPTziKkLexhVKsQKtSpo4bAv5RnB8oXcG4sMHEwCcTf3r7dqE",
+             "memo_key":"PPY5TPTziKkLexhVKsQKtSpo4bAv5RnB8oXcG4sMHEwCcTf3r7dqE",
+             "referrer": "<Name of the referrer account>"
+         }
+     }
+  </code></pre>
+ </body>
+</html>
