@@ -1,5 +1,5 @@
-from bitshares.account import Account
-from bitshares import BitShares
+from peerplays.account import Account
+from peerplays import PeerPlays
 import re
 from pprint import pprint
 import json
@@ -48,14 +48,14 @@ def tapbasic(referrer):
     # This is not really needed but added to keep API-compatibility with Rails Faucet
     account.update({"id": None})
 
-    bitshares = BitShares(
+    peerplays = PeerPlays(
         config.witness_url,
         nobroadcast=config.nobroadcast,
         keys=[config.wif]
     )
 
     try:
-        Account(account["name"], bitshares_instance=bitshares)
+        Account(account["name"], peerplays_instance=peerplays)
         return api_error("Account exists")
     except:
         pass
@@ -63,21 +63,21 @@ def tapbasic(referrer):
     # Registrar
     registrar = account.get("registrar", config.registrar) or config.registrar
     try:
-        registrar = Account(registrar, bitshares_instance=bitshares)
+        registrar = Account(registrar, peerplays_instance=peerplays)
     except:
         return api_error("Unknown registrar: %s" % registrar)
 
     # Referrer
     referrer = account.get("referrer", config.default_referrer) or config.default_referrer
     try:
-        referrer = Account(referrer, bitshares_instance=bitshares)
+        referrer = Account(referrer, peerplays_instance=peerplays)
     except:
         return api_error("Unknown referrer: %s" % referrer)
     referrer_percent = account.get("referrer_percent", config.referrer_percent)
 
     # Create new account
     try:
-        bitshares.create_account(
+        peerplays.create_account(
             account["name"],
             registrar=registrar["id"],
             referrer=referrer["id"],

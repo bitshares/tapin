@@ -1,6 +1,6 @@
 # Tapin
 
-`tapin` is a python-based faucet for Graphene-based blockchains (e.g.  BitShares).
+`tapin` is a python-based faucet for PeerPlays.
 
 ## Installation
 
@@ -13,12 +13,6 @@
 
 The faucet is then available at URL `http://localhost:5000`
 
-## Deploy on Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-Remark: Please understand the risks of exposing private keys to heroku!
-
 ## Nginx configuration
 
 Run `uwsgi --ini wsgi.ini`
@@ -26,7 +20,7 @@ Run `uwsgi --ini wsgi.ini`
 and use a configuration similar tothis
 
 ```
-user bitshares;
+user peerplays;
 worker_processes  4;
 
 events {
@@ -55,9 +49,9 @@ http {
         }
 
         listen       443 ssl;
-        server_name  bitshares-wallet.com;
-        ssl_certificate      /etc/nginx/ssl/bitshares-wallet.com.crt;
-        ssl_certificate_key /etc/nginx/ssl/bitshares-wallet.com.key;
+        server_name  peerplays-wallet.com;
+        ssl_certificate      /etc/nginx/ssl/peerplays-wallet.com.crt;
+        ssl_certificate_key /etc/nginx/ssl/peerplays-wallet.com.key;
         ssl_session_cache    shared:SSL:1m;
         ssl_session_timeout  5m;
         ssl_ciphers  HIGH:!aNULL:!MD5;
