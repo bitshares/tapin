@@ -6,6 +6,7 @@ from flask_cors import CORS
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import yaml
+from flaskext.markdown import Markdown
 
 
 class Config(dict):
@@ -48,6 +49,16 @@ db = SQLAlchemy(app)
 
 # Setup CORS
 cors = CORS(app, resources={r".*/api/v1/.*": {"origins": "*"}})
+
+# Markdown for index page
+markdown = Markdown(
+    app,
+    extensions=['meta',
+                'tables'
+                ],
+    safe_mode=True,
+    output_format='html4',
+)
 
 # Logging
 log_handler_mail = SMTPHandler(config.mail_host.split(":"),
