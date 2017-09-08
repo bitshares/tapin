@@ -96,14 +96,6 @@ def tapbasic(referrer):
 
     models.Accounts(account["name"], request.remote_addr)
 
-    balance = registrar.balance(config.core_asset)
-    if balance and balance.amount < config.balance_mailthreshold:
-        log.critical(
-            "The faucet's balances is below {}".format(
-                config.balance_mailthreshold
-            ),
-        )
-
     return jsonify({"account": {
         "name": account["name"],
         "owner_key": account["owner_key"],
@@ -178,14 +170,6 @@ def tapv2(name, owner, active, memo, referrer):
         return api_error(str(e))
 
     models.Accounts(name, request.remote_addr)
-
-    balance = registrar.balance(config.core_asset)
-    if balance and balance.amount < config.balance_mailthreshold:
-        log.critical(
-            "The faucet's balances is below {}".format(
-                config.balance_mailthreshold
-            ),
-        )
 
     return jsonify({
         "status": "Account created",
