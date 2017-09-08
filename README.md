@@ -13,12 +13,6 @@
 
 The faucet is then available at URL `http://localhost:5000`
 
-## Deploy on Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-Remark: Please understand the risks of exposing private keys to heroku!
-
 ## Nginx configuration
 
 Run `uwsgi --ini wsgi.ini`
