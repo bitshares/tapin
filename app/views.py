@@ -96,14 +96,6 @@ def tapbasic(referrer):
 
     models.Accounts(account["name"], request.remote_addr)
 
-    balance = registrar.balance(config.core_asset)
-    if balance and balance.amount < config.balance_mailthreshold:
-        log.critical(
-            "The faucet's balances is below {}".format(
-                config.balance_mailthreshold
-            ),
-        )
-
     return jsonify({"account": {
         "name": account["name"],
         "owner_key": account["owner_key"],
@@ -129,14 +121,14 @@ def tapv2(name, owner, active, memo, referrer):
             re.search(r"[aeiouy]", name)):
         return api_error("Only cheap names allowed!")
 
-    bitshares = BitShares(
+    peerplays = PeerPlays(
         config.witness_url,
         nobroadcast=config.nobroadcast,
         keys=[config.wif]
     )
 
     try:
-        Account(name, bitshares_instance=bitshares)
+        Account(name, peerplays_instance=peerplays)
         return api_error("Account exists")
     except:
         pass
@@ -144,7 +136,7 @@ def tapv2(name, owner, active, memo, referrer):
     # Registrar
     registrar = config.registrar
     try:
-        registrar = Account(registrar, bitshares_instance=bitshares)
+        registrar = Account(registrar, peerplays_instance=peerplays)
     except:
         return api_error("Unknown registrar: %s" % registrar)
 
@@ -152,14 +144,14 @@ def tapv2(name, owner, active, memo, referrer):
     if not referrer:
         referrer = config.default_referrer
     try:
-        referrer = Account(referrer, bitshares_instance=bitshares)
+        referrer = Account(referrer, peerplays_instance=peerplays)
     except:
         return api_error("Unknown referrer: %s" % referrer)
     referrer_percent = config.referrer_percent
 
     # Create new account
     try:
-        bitshares.create_account(
+        peerplays.create_account(
             name,
             registrar=registrar["id"],
             referrer=referrer["id"],
@@ -178,14 +170,6 @@ def tapv2(name, owner, active, memo, referrer):
         return api_error(str(e))
 
     models.Accounts(name, request.remote_addr)
-
-    balance = registrar.balance(config.core_asset)
-    if balance and balance.amount < config.balance_mailthreshold:
-        log.critical(
-            "The faucet's balances is below {}".format(
-                config.balance_mailthreshold
-            ),
-        )
 
     return jsonify({
         "status": "Account created",
