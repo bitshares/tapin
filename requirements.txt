@@ -12,6 +12,7 @@ Flask-Session
 flask-cors
 flask-script
 flask-mail
+flask-markdown
 
 # hosting
 gunicorn
