@@ -2,15 +2,19 @@ from bitshares.account import Account
 from bitshares import BitShares
 import re
 from pprint import pprint
-import json
 import os
-from flask import render_template, request, session, jsonify, abort
-from . import app, models
-from datetime import datetime
+import json
 import traceback
-from . import config
-from graphenebase.account import PasswordKey
+from flask import render_template, request, session, jsonify, abort
+from datetime import datetime
+from . import app, models, config
 log = app.logger
+
+test_account_name = r"test-faucet.*"
+
+
+def is_test_account(account_name):
+    return re.match(test_account_name, account_name)
 
 
 def api_error(msg):
@@ -53,11 +57,13 @@ def tapbasic(referrer):
         keys=[config.wif]
     )
 
-    try:
-        Account(account["name"], bitshares_instance=bitshares)
-        return api_error("Account exists")
-    except:
-        pass
+    # See if the account to register already exists
+    if not is_test_account(account["name"]):
+        try:
+            Account(account["name"], bitshares_instance=bitshares)
+            return api_error("Account exists")
+        except:
+            pass
 
     # Registrar
     registrar = account.get("registrar", config.registrar) or config.registrar
@@ -74,9 +80,15 @@ def tapbasic(referrer):
         return api_error("Unknown referrer: %s" % referrer)
     referrer_percent = account.get("referrer_percent", config.referrer_percent)
 
+    # Make sure to not broadcast this testing account
+    if is_test_account(account["name"]):
+        bitshares.nobroadcast = True
+    else:
+        bitshares.nobroadcast = False
+
     # Create new account
     try:
-        bitshares.create_account(
+        tx = bitshares.create_account(
             account["name"],
             registrar=registrar["id"],
             referrer=referrer["id"],
@@ -94,88 +106,19 @@ def tapbasic(referrer):
         log.error(traceback.format_exc())
         return api_error(str(e))
 
-    models.Accounts(account["name"], request.remote_addr)
+    if not is_test_account(account["name"]):
+        models.Accounts(account["name"], request.remote_addr)
 
-    return jsonify({"account": {
+    reply = {"account": {
         "name": account["name"],
         "owner_key": account["owner_key"],
         "active_key": account["active_key"],
         "memo_key": account["memo_key"],
         "referrer": referrer["name"]
-    }})
+    }}
 
+    if is_test_account(account["name"]):
+        tx.pop("signatures", None)
+        reply.update({"tx": tx})
 
-"""
-              V2
-"""
-
-
-@app.route('/api/v2/create/<name>/<owner>/<active>/<memo>', methods=['GET'], defaults={'referrer': None})
-def tapv2(name, owner, active, memo, referrer):
-    # prevent massive account registration
-    if request.remote_addr != "127.0.0.1" and models.Accounts.exists(request.remote_addr):
-        return api_error("Only one account per IP")
-
-    # Check if account name is cheap name
-    if (not re.search(r"[0-9-]", name) and
-            re.search(r"[aeiouy]", name)):
-        return api_error("Only cheap names allowed!")
-
-    bitshares = BitShares(
-        config.witness_url,
-        nobroadcast=config.nobroadcast,
-        keys=[config.wif]
-    )
-
-    try:
-        Account(name, bitshares_instance=bitshares)
-        return api_error("Account exists")
-    except:
-        pass
-
-    # Registrar
-    registrar = config.registrar
-    try:
-        registrar = Account(registrar, bitshares_instance=bitshares)
-    except:
-        return api_error("Unknown registrar: %s" % registrar)
-
-    # Referrer
-    if not referrer:
-        referrer = config.default_referrer
-    try:
-        referrer = Account(referrer, bitshares_instance=bitshares)
-    except:
-        return api_error("Unknown referrer: %s" % referrer)
-    referrer_percent = config.referrer_percent
-
-    # Create new account
-    try:
-        bitshares.create_account(
-            name,
-            registrar=registrar["id"],
-            referrer=referrer["id"],
-            referrer_percent=referrer_percent,
-            owner_key=owner,
-            active_key=active,
-            memo_key=memo,
-            proxy_account=config.get("proxy", None),
-            additional_owner_accounts=config.get("additional_owner_accounts", []),
-            additional_active_accounts=config.get("additional_active_accounts", []),
-            additional_owner_keys=config.get("additional_owner_keys", []),
-            additional_active_keys=config.get("additional_active_keys", []),
-        )
-    except Exception as e:
-        log.error(traceback.format_exc())
-        return api_error(str(e))
-
-    models.Accounts(name, request.remote_addr)
-
-    return jsonify({
-        "status": "Account created",
-        "account": {
-            "name": name,
-            "owner_key": owner,
-            "active_key": active,
-            "memo_key": memo,
-        }})
+    return jsonify(reply)
