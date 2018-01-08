@@ -37,7 +37,11 @@ def tapbasic(referrer):
         abort(400)
 
     # prevent massive account registration
-    if request.remote_addr != "127.0.0.1" and models.Accounts.exists(request.remote_addr):
+    if request.headers.get('X-Real-IP'):
+        ip = request.headers.get('X-Real-IP')
+    else:
+        ip = request.remote_addr
+    if ip != "127.0.0.1" and models.Accounts.exists(ip):
         return api_error("Only one account per IP")
 
     # Check if account name is cheap name
@@ -95,7 +99,7 @@ def tapbasic(referrer):
         log.error(traceback.format_exc())
         return api_error(str(e))
 
-    models.Accounts(account["name"], request.remote_addr)
+    models.Accounts(account["name"], ip)
 
     balance = registrar.balance(config.core_asset)
     if balance and balance.amount < config.balance_mailthreshold:
