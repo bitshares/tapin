@@ -4,6 +4,7 @@ autobahn
 pycrypto
 pyyaml
 click
+uwsgi
 
 # flask
 flask
