@@ -1,7 +1,5 @@
 # git repos
 bitshares
-autobahn
-pycrypto
 pyyaml
 click
 uwsgi
