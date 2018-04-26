@@ -1,9 +1,12 @@
+import os
+import json
+import datetime
+
 from sqlalchemy.sql import func
 from sqlalchemy.orm import load_only
+from validate_email import validate_email
+
 from . import db
-import datetime
-import json
-import os
 from . import config
 
 
@@ -16,26 +19,46 @@ class Accounts(db.Model):
     ip = db.Column(db.String(100))
     created = db.Column(db.DateTime())
 
-    def __init__(self, account, ip):
-        self.account = account
-        self.ip = ip
+    full_name = db.Column(db.String(255))
+    email = db.Column(db.String(255))
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                raise Exception("Used non-existing attribute %s" % key)
+
         self.created = datetime.datetime.now()
+
+        if self.email:
+            self.validate_email(self.email)
+
         db.session.add(self)
         db.session.commit()
+
+    @staticmethod
+    def validate_email(email):
+        if not validate_email(email):
+            raise ValueError("Invalid Email Address")
+
+    @property
+    def allowedAge(self):
+        return (
+            datetime.datetime.now() -
+            datetime.timedelta(seconds=config.minIPAge))
 
     @staticmethod
     def getIps():
         ips = []
         for i in Accounts.query.options().all():
-            allowedAge = datetime.datetime.now() - datetime.timedelta(seconds=config.minIPAge)
-            if allowedAge < i.created:
+            if self.allowedAge < i.created:
                 ips.append(i.ip)
         return ips
 
     @staticmethod
     def exists(address):
-        allowedAge = datetime.datetime.now() - datetime.timedelta(seconds=config.minIPAge)
         return Accounts.query.filter(
             (Accounts.ip == address),
-            (Accounts.created > allowedAge)
+            (Accounts.created > self.allowedAge)
         ).first()

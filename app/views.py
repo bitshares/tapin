@@ -85,10 +85,17 @@ def tapbasic(referrer):
     referrer_percent = account.get("referrer_percent", config.referrer_percent)
 
     # Make sure to not broadcast this testing account
-    if is_test_account(account["name"]):
-        bitshares.nobroadcast = True
-    else:
-        bitshares.nobroadcast = False
+    if not bitshares.nobroadcast:
+        if is_test_account(account["name"]):
+            bitshares.nobroadcast = True
+        else:
+            bitshares.nobroadcast = False
+
+    if "email" in account and account["email"]:
+        try:
+            models.Accounts.validate_email(account["email"])
+        except Exception as e:
+            return api_error(str(e))
 
     # Create new account
     try:
@@ -111,7 +118,12 @@ def tapbasic(referrer):
         return api_error(str(e))
 
     if not is_test_account(account["name"]):
-        models.Accounts(account["name"], ip)
+        models.Accounts(
+            account=account["name"],
+            full_name=account.get("real_name", None),
+            email=account.get("email", None),
+            ip=ip
+        )
 
     reply = {"account": {
         "name": account["name"],
