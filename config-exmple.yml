@@ -1,0 +1,19 @@
+admins:
+- adminA@example.com
+- adminB@example.com
+balance_mailthreshold: 500
+core_asset: BTS
+default_referrer: xeroc
+mail_from: noreply@faucet.org
+mail_host: SERVER:589
+mail_pass: password
+mail_user: user
+minIPAge: 300
+nobroadcast: true
+referrer_percent: 50
+registrar: faucet
+secret_key: RANDOM-STRING
+wif: 5KAniAqT1y4orQQ7KopKJ85QQXbVU92jbpV6KGGy5b396LpLYLM
+witness_url: wss://node.bitshares.eu
+
+require_fields:

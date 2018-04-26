@@ -35,9 +35,13 @@ def tapbasic(referrer):
     account = request.json.get('account', {})
 
     # make sure all keys are present
-    if any([key not in account
-            for key in ["active_key", "memo_key", "owner_key", "name"]]):
-        abort(400)
+    required_files = set(
+        (config.get("require_fields", []) or []) +
+        ["active_key", "memo_key", "owner_key", "name"]
+    )
+    for required in required_files:
+        if required not in account:
+            return api_error("Please provide '{}'".format(required))
 
     # prevent massive account registration
     if request.headers.get('X-Real-IP'):
