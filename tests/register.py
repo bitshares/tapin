@@ -21,6 +21,8 @@ def main(endpoint, name):
 
     data["account"]["name"] = name
 
+    pprint(data)
+
     ret = requests.post(
         endpoint + "/api/v1/accounts",
         json=data)

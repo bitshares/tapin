@@ -40,7 +40,7 @@ def tapbasic(referrer):
         ["active_key", "memo_key", "owner_key", "name"]
     )
     for required in required_files:
-        if required not in account:
+        if str(required) not in account:
             return api_error("Please provide '{}'".format(required))
 
     # prevent massive account registration
