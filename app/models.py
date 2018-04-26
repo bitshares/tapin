@@ -1,9 +1,5 @@
-import os
-import json
 import datetime
 
-from sqlalchemy.sql import func
-from sqlalchemy.orm import load_only
 from validate_email import validate_email
 
 from . import db
@@ -42,8 +38,8 @@ class Accounts(db.Model):
         if not validate_email(email):
             raise ValueError("Invalid Email Address")
 
-    @property
-    def allowedAge(self):
+    @staticmethod
+    def allowedAge():
         return (
             datetime.datetime.now() -
             datetime.timedelta(seconds=config.minIPAge))
@@ -52,7 +48,7 @@ class Accounts(db.Model):
     def getIps():
         ips = []
         for i in Accounts.query.options().all():
-            if self.allowedAge < i.created:
+            if Accounts.allowedAge() < i.created:
                 ips.append(i.ip)
         return ips
 
@@ -60,5 +56,5 @@ class Accounts(db.Model):
     def exists(address):
         return Accounts.query.filter(
             (Accounts.ip == address),
-            (Accounts.created > self.allowedAge)
+            (Accounts.created > Accounts.allowedAge())
         ).first()
