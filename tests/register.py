@@ -1,3 +1,4 @@
+import click
 import requests
 from pprint import pprint
 
@@ -12,7 +13,22 @@ data =  {
     }
 }
 
-ret = requests.post("http://localhost:5000/api/v1/accounts", json=data)
-assert ret.status_code == 200, ret.text
 
-pprint(ret.json())
+@click.command()
+@click.option("--endpoint", default="http://localhost:5000")
+@click.argument("name", default="test-faucet-21")
+def main(endpoint, name):
+
+    data["account"]["name"] = name
+
+    ret = requests.post(
+        endpoint + "/api/v1/accounts",
+        json=data)
+
+    assert ret.status_code == 200, ret.text
+
+    pprint(ret.json())
+
+
+if __name__ == "__main__":
+    main()

@@ -3,6 +3,7 @@ bitshares
 pyyaml
 click
 uwsgi
+validate_email
 
 # flask
 flask
