@@ -48,13 +48,19 @@ class Accounts(db.Model):
     def getIps():
         ips = []
         for i in Accounts.query.options().all():
-            if Accounts.allowedAge() < i.created:
+            if (
+                config.get("restrict_ip", True) and
+                Accounts.allowedAge() < i.created
+            ):
                 ips.append(i.ip)
         return ips
 
     @staticmethod
     def exists(address):
-        return Accounts.query.filter(
-            (Accounts.ip == address),
-            (Accounts.created > Accounts.allowedAge())
-        ).first()
+        return (
+            config.get("restrict_ip", True) and
+            bool(Accounts.query.filter(
+                (Accounts.ip == address),
+                (Accounts.created > Accounts.allowedAge())
+            ).first())
+        )

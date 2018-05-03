@@ -17,6 +17,11 @@ def is_test_account(account_name):
     return re.match(test_account_name, account_name)
 
 
+def is_premiumname(name):
+    return (not re.search(r"[0-9-]", name) and
+            re.search(r"[aeiouy]", name))
+
+
 def api_error(msg):
     return jsonify({"error": {"base": [msg]}})
 
@@ -48,12 +53,18 @@ def tapbasic(referrer):
         ip = request.headers.get('X-Real-IP')
     else:
         ip = request.remote_addr
-    if ip != "127.0.0.1" and models.Accounts.exists(ip):
+    if (
+        config.get("restrict_ip", True) and
+        ip != "127.0.0.1" and
+        models.Accounts.exists(ip)
+    ):
         return api_error("Only one account per IP")
 
     # Check if account name is cheap name
-    if (not re.search(r"[0-9-]", account["name"]) and
-            re.search(r"[aeiouy]", account["name"])):
+    if (
+        config.get("disable_premium_names", True) and
+        is_premiumname(account["name"])
+    ):
         return api_error("Only cheap names allowed!")
 
     # This is not really needed but added to keep API-compatibility with Rails Faucet
