@@ -2,14 +2,18 @@ import click
 import requests
 from pprint import pprint
 
+from bitsharesbase.account import PrivateKey
+
+p = PrivateKey("5J539ijxkg4tw7zP95spwek5YqoD39zWp2kKMA6PBqpmukHL6yP")
+
 data =  {
-    "account":{
-        "name":"test-faucet-21",
-        "owner_key":"BTS5WaszCsqVN9hDkXZPMyiUib3dyrEA4yd5kSMgu28Wz47B3wUqa",
-        "active_key":"BTS5TPTziKkLexhVKsQKtSpo4bAv5RnB8oXcG4sMHEwCcTf3r7dqE",
-        "memo_key":"BTS5TPTziKkLexhVKsQKtSpo4bAv5RnB8oXcG4sMHEwCcTf3r7dqE",
-        "real_name": "Foobar Hans",
-        "email": "asfasfas@asfas.com"
+    "account": {
+        "name": "test-faucet-21",
+        "owner_key": str(p.pubkey),
+        "active_key": str(p.pubkey),
+        "memo_key": str(p.pubkey),
+        "real_name":  "Foobar Hans",
+        "email":  "asfasfas@asfas.com"
     }
 }
 
